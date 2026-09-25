@@ -1,0 +1,123 @@
+# Frontend Architecture & Specifications
+
+## Overview
+
+The frontend is a single-board Kanban web application built with Next.js 16 (App Router), React 19, TypeScript, and Tailwind CSS v4. State and interactions are powered by `@dnd-kit` for drag-and-drop card movements between columns.
+
+## Tech Stack
+
+- Framework: Next.js 16.1.6 (App Router)
+- UI Library: React 19.2.3
+- Styling: Tailwind CSS v4 with custom CSS design tokens
+- Drag & Drop: `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities`
+- Unit Testing: Vitest 3.2.4, Testing Library (React, Jest-DOM, User-Event)
+- End-to-End Testing: Playwright 1.58.0
+
+## Directory Structure
+
+```
+frontend/
+├── public/               # Static assets
+├── src/
+│   ├── app/
+│   │   ├── globals.css   # Theme tokens, font variables, base styles
+│   │   ├── layout.tsx    # Root HTML layout and metadata
+│   │   └── page.tsx      # Root page rendering <KanbanBoard />
+│   ├── components/
+│   │   ├── KanbanBoard.tsx         # Main board coordinator & DnD context
+│   │   ├── KanbanBoard.test.tsx    # Component unit tests
+│   │   ├── KanbanColumn.tsx        # Droppable column with sortable list
+│   │   ├── KanbanCard.tsx          # Draggable card component
+│   │   ├── KanbanCardPreview.tsx   # Drag overlay representation
+│   │   └── NewCardForm.tsx         # Form to create a card in a column
+│   ├── lib/
+│   │   ├── kanban.ts               # Core data structures, seed data & helpers
+│   │   └── kanban.test.ts          # Unit tests for board manipulation logic
+│   └── test/
+│       ├── setup.ts                # Jest-DOM matchers setup for Vitest
+│       └── vitest.d.ts             # Type definitions for test runner
+├── tests/
+│   └── kanban.spec.ts    # Playwright E2E test suite
+├── next.config.ts        # Next.js configuration
+├── package.json          # Dependencies and test scripts
+└── tsconfig.json         # TypeScript configuration
+```
+
+## Component Architecture
+
+### 1. KanbanBoard (`src/components/KanbanBoard.tsx`)
+- Root client component (`use client`).
+- Manages local `BoardData` state (initialized to `initialData` for the MVP).
+- Sets up `@dnd-kit` `DndContext` using `PointerSensor` with an activation distance constraint of 6px to avoid accidental drags when clicking.
+- Implements drag event handlers:
+  - `handleDragStart`: Tracks `activeCardId` for rendering the `DragOverlay`.
+  - `handleDragEnd`: Reorders or migrates cards across columns via `moveCard()`.
+- Implements board operations:
+  - `handleRenameColumn(columnId, title)`
+  - `handleAddCard(columnId, title, details)`
+  - `handleDeleteCard(columnId, cardId)`
+
+### 2. KanbanColumn (`src/components/KanbanColumn.tsx`)
+- Droppable container utilizing `useDroppable`.
+- Renders an inline editable column header with card counter.
+- Encloses card items inside a `SortableContext` using `verticalListSortingStrategy`.
+- Displays an empty state indicator ("Drop a card here") when column has 0 cards.
+- Hosts `NewCardForm` at the bottom for quick card creation.
+
+### 3. KanbanCard (`src/components/KanbanCard.tsx`)
+- Draggable card item utilizing `useSortable`.
+- Displays card `title`, `details`, and a "Remove" button.
+- Applies transform styles and opacity reduction when being dragged.
+
+### 4. KanbanCardPreview (`src/components/KanbanCardPreview.tsx`)
+- Lightweight visual snapshot rendered inside `DragOverlay` during an active drag operation.
+
+### 5. NewCardForm (`src/components/NewCardForm.tsx`)
+- Collapsible inline form with inputs for title and details.
+- Validates non-empty title and triggers `onAdd(title, details)`.
+
+## Data Model & Logic (`src/lib/kanban.ts`)
+
+### Types
+- `Card`: `{ id: string; title: string; details: string; }`
+- `Column`: `{ id: string; title: string; cardIds: string[]; }`
+- `BoardData`: `{ columns: Column[]; cards: Record<string, Card>; }`
+
+### Utilities
+- `initialData`: Seed board with 5 default columns ("Backlog", "Discovery", "In Progress", "Review", "Done") and 8 sample cards.
+- `moveCard(columns, activeId, overId)`: Pure function handling reordering within the same column or transferring across different columns.
+- `createId(prefix)`: Generates lightweight unique identifiers based on timestamp and random string.
+
+## Color Scheme & Design Tokens (`src/app/globals.css`)
+
+- Accent Yellow: `#ecad0a` (`var(--accent-yellow)`)
+- Primary Blue: `#209dd7` (`var(--primary-blue)`)
+- Secondary Purple: `#753991` (`var(--secondary-purple)`)
+- Dark Navy: `#032147` (`var(--navy-dark)`)
+- Supporting Text Gray: `#888888` (`var(--gray-text)`)
+- Background Surface: `#f4f8fb` (`var(--surface)`)
+- Card / Column Surface: `#ffffff` (`var(--surface-strong)`)
+- Stroke: `#e3ebf2` (`var(--stroke)`)
+
+## Testing Strategy
+
+### Unit / Component Testing (Vitest)
+- Command: `npm run test:unit`
+- `src/lib/kanban.test.ts`: Verifies `moveCard` across same column and different columns.
+- `src/components/KanbanBoard.test.tsx`: Verifies board rendering, column count, and card addition.
+
+### End-to-End Testing (Playwright)
+- Command: `npm run test:e2e`
+- `tests/kanban.spec.ts`: Tests loading the board, adding a card, and dragging a card between columns using mouse simulation.
+
+## Planned Changes for Upcoming Project Parts
+
+1. **Static Export Configuration (Part 3):**
+   - Update `next.config.ts` to `output: 'export'` with `images: { unoptimized: true }` so the build output (`out/`) can be served directly by FastAPI.
+2. **Authentication Gate (Part 4):**
+   - Add a login / logout view or modal requiring username `user` and password `password`.
+3. **Backend Integration (Part 7):**
+   - Replace local `useState(initialData)` with asynchronous API calls to `GET /api/board` and `PUT /api/board`.
+4. **AI Sidebar Widget (Part 10):**
+   - Add collapsible AI chat panel communicating with backend AI endpoints and triggering board re-sync when the AI modifies cards.
+

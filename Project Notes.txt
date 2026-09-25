@@ -1,0 +1,1 @@
+This project was initially built using Antigravity (3/4's of it), but reach my quota. Used AI Studio through Zoo to complete the rest of the project.

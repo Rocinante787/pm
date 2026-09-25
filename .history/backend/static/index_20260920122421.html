@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Management MVP - Scaffolding</title>
+  <style>
+    :root {
+      --accent-yellow: #ecad0a;
+      --primary-blue: #209dd7;
+      --secondary-purple: #753991;
+      --navy-dark: #032147;
+      --gray-text: #888888;
+      --surface: #f4f8fb;
+      --card-bg: #ffffff;
+      --stroke: #e3ebf2;
+    }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--surface);
+      color: var(--navy-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--stroke);
+      border-radius: 24px;
+      padding: 40px;
+      max-width: 500px;
+      box-shadow: 0 12px 32px rgba(3, 33, 71, 0.08);
+      text-align: center;
+    }
+    .tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--primary-blue);
+      border: 1px solid var(--stroke);
+      border-radius: 9999px;
+      padding: 6px 14px;
+      margin-bottom: 20px;
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: 28px;
+      color: var(--navy-dark);
+    }
+    p {
+      color: var(--gray-text);
+      font-size: 14px;
+      line-height: 1.6;
+      margin: 0 0 24px;
+    }
+    .btn {
+      display: inline-block;
+      background: var(--secondary-purple);
+      color: #ffffff;
+      padding: 10px 20px;
+      border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .btn:hover {
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <span class="tag">Part 2 Scaffolding</span>
+    <h1>Hello World</h1>
+    <p>FastAPI backend is running and successfully serving static files. The Kanban board will be integrated in Part 3.</p>
+    <a href="/api/health" class="btn">Check API Health</a>
+  </div>
+</body>
+</html>
